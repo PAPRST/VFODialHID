@@ -3,7 +3,7 @@
 static const uint8_t _hidMultiReportDescriptorVFODial[] PROGMEM = {
     // Integrated Radial Controller TLC
     0x05, 0x01,       // USAGE_PAGE (Generic Desktop)
-    0x09, 0x0e,       // USAGE (System Multi-Axis Controller)
+    0x09, 0x08,       // USAGE (Multi-Axis Controller)
     0xa1, 0x01,       // COLLECTION (Application)
     0x85, HID_REPORTID_VFODIAL,       //   REPORT_ID (Radial Controller)
     0x05, 0x0d,       //   USAGE_PAGE (Digitizers)
