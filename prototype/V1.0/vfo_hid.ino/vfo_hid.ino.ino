@@ -36,6 +36,8 @@ volatile int counter = 0;
 volatile int freeze_cnt = 0;
 volatile int send_report = 0;
 
+volatile uint8_t button_state = 0;
+
 void coder_detect() {
   // To be optimised
   int A = digitalRead(code_A);
@@ -60,13 +62,19 @@ ISR(TIMER1_COMPA_vect) // timer compare interrupt service routine
     counter = 0;
     send_report = 1;
   }
+  uint8_t bstat = digitalRead(mode_select);
+  if(bstat != button_state) {
+    button_state = bstat;
+    send_report = 1;
+  }
 }
 
 void loop() {
   if(send_report) {
     //SurfaceDial.rotate(freeze_cnt);
     send_report = 0;
-    VFODial.sendstatus(0, freeze_cnt, 0);
+    VFODial.sendstatus(button_state, freeze_cnt, 0);
+    freeze_cnt = 0;
     /*send_report = 0;*/
   }
 }
