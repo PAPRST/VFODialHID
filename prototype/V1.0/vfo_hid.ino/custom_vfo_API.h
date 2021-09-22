@@ -19,10 +19,17 @@ public:
 	inline VFODialAPI(void);
 	inline void begin(void);
 	inline void end(void);
-	inline void sendstatus(uint16_t buttons, int16_t sd, int8_t cd);
+  inline size_t releaseAll(void);
+
+  inline void setButtons(uint16_t val);
+  inline void setSmooth(int16_t val);
+  inline void setCoarse(int8_t val);
+
+  virtual int send(void) = 0;
+//	inline void sendstatus(uint16_t buttons, int16_t sd, int8_t cd);
 
 	// Sending is public in the base class for advanced users.
-	virtual void SendReport(void* data, int length) = 0;
+	//virtual void SendReport(void* data, int length) = 0;
 
 protected:
 	uint16_t _button;
@@ -30,6 +37,8 @@ protected:
 	int16_t _smooth_dial;
 
 	int8_t _coarse_dial;
+
+  HID_VFODialReport_Data_t _vfoReport;
 };
 
 // Implementation is inline
