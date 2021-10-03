@@ -4,6 +4,10 @@
 
 hid_device * open_by_id(uint16_t vid, uint16_t pid, const wchar_t * sernum) {
 	int res = 0;
+	hid_device * handle;
+	wchar_t man_string[MAX_STR];
+	wchar_t prod_string[MAX_STR];
+	wchar_t sernum_string[MAX_STR];
 	res = hid_init();
 	if(res == 0) {
 		handle = hid_open(vid, pid, sernum);
@@ -65,5 +69,14 @@ int8_t send_text(hid_device * handle, uint8_t x, uint8_t y, const uint8_t * data
 	memcpy(&dispdata[2], data, len);
 	uint8_t res = send_cmd(handle, DISPLAY_CMD, dispdata, len+2);
 	free(dispdata);
+	return res;
+}
+
+int8_t send_leds(hid_device * handle, const uint16_t leds) {
+	uint8_t * data = (uint8_t *) malloc(63);
+	data[0] = leds >> 8;
+	data[1] = leds & 0x00FF;
+	uint8_t res = send_cmd(handle, LED_CMD, data, 63);
+	free(data);
 	return res;
 }
