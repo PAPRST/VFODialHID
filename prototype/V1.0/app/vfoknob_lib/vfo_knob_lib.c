@@ -56,9 +56,9 @@ int8_t send_cmd(hid_device * handle, uint8_t cmd, const uint8_t * data, const ui
 	memcpy(&extdata[1], data, len);
 	uint8_t res = hid_write(handle, extdata, len+1);
 	free(extdata);
-	if(res != len+2) {
+	/*if(res != len+1) {
 		return -1;
-	}
+	}*/
 	return res;
 }
 

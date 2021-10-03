@@ -2,7 +2,7 @@ libvfoknob.a: libvfoknob.o
 	ar rcs $@ $^
 
 libvfoknob.o: vfo_knob_lib.c vfo_knob_lib.h
-	gcc -c -o $@ $<
+	gcc -g -c -o $@ $<
 
 install: libvfoknob.a
 	mkdir -p /usr/lib/libvfoknob

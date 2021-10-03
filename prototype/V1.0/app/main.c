@@ -20,6 +20,7 @@ int main(int argc, char * argv[]) {
 		printf("Buttons: %04X - Smooth: %d - Coarse: %d - Counter: %d\n", pReport->buttons, pReport->smooth, pReport->coarse, cnt);
 		snprintf(buf, 64, "%d", cnt);
 		printf("%s\n", buf);
-		send_text(h, 0, 0, buf, 61);
+		int8_t res = send_text(h, 0, 0, buf, 61);
+		printf("%d\n", res);
 	}
 }
