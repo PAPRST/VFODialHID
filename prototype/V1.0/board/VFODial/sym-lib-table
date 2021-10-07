@@ -1,0 +1,8 @@
+(sym_lib_table
+  (lib (name USB_CONNECTOR)(type Legacy)(uri ${CUSTLIB}/Connectors/USB/USB_CONNECTOR.lib)(options "")(descr ""))
+  (lib (name passives)(type Legacy)(uri ${CUSTLIB}/Passive/passives.lib)(options "")(descr ""))
+  (lib (name xtals)(type Legacy)(uri ${CUSTLIB}/Oscillator/Xtal/xtals.lib)(options "")(descr ""))
+  (lib (name Switch)(type Legacy)(uri ${KICAD_SYMBOL_DIR}/Switch.lib)(options "")(descr ""))
+  (lib (name MCU_Microchip_SAML)(type Legacy)(uri ${KICAD_SYMBOL_DIR}/MCU_Microchip_SAML.lib)(options "")(descr ""))
+  (lib (name ATSAM4LS)(type Legacy)(uri ${CUSTLIB}/uC/ATMEL/ATSAM4LS.lib)(options "")(descr ""))
+)
