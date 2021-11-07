@@ -1,0 +1,7 @@
+T27A4 140161:869 SEGGER J-Link V6.48a Log File (0000ms, 183444ms total)
+T27A4 140161:869 DLL Compiled: Jul 30 2019 15:16:09 (0000ms, 183444ms total)
+T27A4 140161:869 Logging started @ 2021-11-07 18:33 (0000ms, 183444ms total)
+T27A4 140161:876 JLINK_ExecCommand("Device = ATSAM4LS4A", ...). Device "ATSAM4LS4A" selected.  returns 0x00 (0002ms, 183446ms total)
+T27A4 140161:920 JLINK_Close() (0010ms, 183456ms total)
+T27A4 140161:920  (0010ms, 183456ms total)
+T27A4 140161:920 Closed (0010ms, 183456ms total)
