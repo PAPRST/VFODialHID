@@ -9,22 +9,26 @@ hid_device * open_by_id(uint16_t vid, uint16_t pid, const wchar_t * sernum) {
 	wchar_t prod_string[MAX_STR];
 	wchar_t sernum_string[MAX_STR];
 	res = hid_init();
+	printf("HID Init %d \n", res);
 	if(res == 0) {
 		handle = hid_open(vid, pid, sernum);
+		printf("HID open %d \n", handle);
 		if(handle) {
-			res = hid_get_manufacturer_string(handle, man_string, MAX_STR);
-			if(res == 0) {
-				res = hid_get_product_string(handle, prod_string, MAX_STR);
-				if(res == 0) {
-					res = hid_get_serial_number_string(handle, sernum_string, MAX_STR);
-					if(res == 0)
-						return handle;
-					else
-						return 0;
-				}
-			}
+			// res = hid_get_manufacturer_string(handle, man_string, MAX_STR);
+			// if(res == 0) {
+			// 	res = hid_get_product_string(handle, prod_string, MAX_STR);
+			// 	if(res == 0) {
+			// 		res = hid_get_serial_number_string(handle, sernum_string, MAX_STR);
+			// 		if(res == 0)
+			// 			return handle;
+			// 		else
+			// 			return 0;
+			// 	}
+			// }
+			return handle;
 		}
 	}
+	return 0;
 }
 
 void close_hid(hid_device * handle) {
@@ -37,8 +41,10 @@ HID_VFO_Report * read_report(hid_device * handle) {
 	uint8_t report[6];
 	uint8_t res = 0;
 	uint8_t i = 0;
+	printf("Read report\n");
 	while(res < 6) {
 		res = hid_read(handle, &report[i], 6);
+		printf("res: %d", res);
 		i += res;
 	}
 	if(report[0] == HID_REPORTID_VFODIAL) {

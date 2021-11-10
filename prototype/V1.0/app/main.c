@@ -7,13 +7,20 @@
 
 #include "vfoknob_lib/vfo_knob_lib.h"
 
+//gcc -o main main.c -lvfoknob -L/usr/lib/libvfoknob -lhidapi-libusb
+
 int main(int argc, char * argv[]) {
 	uint8_t buf[64] = {0};
 	int16_t cnt = 0;
 
 	hid_device * h;
-	h = open_by_id(0x2341, 0x8036, NULL);
-
+	printf("fuck shit\n");
+	h = open_by_id(0x03EB, 0x2402, NULL);
+	printf("it's 4 am for fuck sake %d\n", h);
+	if(h == 0) {
+		printf("Open Failure\n");
+		return -1;
+	}
 	while (1) {
 		HID_VFO_Report * pReport = read_report(h);
 		cnt += pReport->smooth;
