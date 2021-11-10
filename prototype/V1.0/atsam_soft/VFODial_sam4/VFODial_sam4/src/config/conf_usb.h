@@ -61,7 +61,7 @@
 //! USB Device string definitions (Optional)
 #define  USB_DEVICE_MANUFACTURE_NAME      "PAPRST"
 #define  USB_DEVICE_PRODUCT_NAME          "VFO Dial"
-// #define  USB_DEVICE_SERIAL_NAME           "12...EF"
+#define  USB_DEVICE_SERIAL_NAME           "12...EF"
 
 /**
  * Device speeds support
@@ -129,6 +129,7 @@
 /* Custom report */
 
 typedef struct __attribute__((packed)) {
+	uint8_t rtype:8;
 	uint16_t buttons:16;
 	int16_t smoothdial:16;
 	int8_t coarse_dial:8;

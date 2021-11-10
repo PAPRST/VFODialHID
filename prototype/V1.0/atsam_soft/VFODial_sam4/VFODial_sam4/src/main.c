@@ -35,8 +35,19 @@ void init_screen(void) {
 
 }
 
-void init_tc(void) {
+uint8_t debug_state = 0;
+void Periodic_Int(void) {
+	ast_clear_interrupt_flag(AST, AST_INTERRUPT_PER);
 	
+	ioport_set_pin_level(GLED, debug_state & 1);
+	debug_state = ~debug_state;
+	
+	ioport_set_pin_level(BLED, smooth_cnt & 1);
+	
+	_vfo_report.smoothdial = smooth_cnt;
+	smooth_cnt = 0;
+
+	udi_hid_generic_send_report_in((uint8_t *)&_vfo_report);
 }
 
 void init_dial(void) {
@@ -45,11 +56,11 @@ void init_dial(void) {
 	
 	/* Initialize RGB LED, turned off */
 	ioport_set_pin_dir(RLED, IOPORT_DIR_OUTPUT);
-	ioport_set_pin_level(RLED, IOPORT_PIN_LEVEL_LOW);
+	ioport_set_pin_level(RLED, IOPORT_PIN_LEVEL_HIGH);
 	ioport_set_pin_dir(GLED, IOPORT_DIR_OUTPUT);
 	ioport_set_pin_level(GLED, IOPORT_PIN_LEVEL_HIGH);
 	ioport_set_pin_dir(BLED, IOPORT_DIR_OUTPUT);
-	ioport_set_pin_level(BLED, IOPORT_PIN_LEVEL_LOW);
+	ioport_set_pin_level(BLED, IOPORT_PIN_LEVEL_HIGH);
 	
 	/* Initialize Switch LED */
 	ioport_set_pin_dir(PB1_LED, IOPORT_DIR_OUTPUT);
@@ -109,6 +120,36 @@ void init_dial(void) {
 	//ioport_set_pin_mode(BUTTON_0_PIN, IOPORT_MODE_PULLUP);
 }
 
+void init_ast_timer(void) {
+	struct ast_config aconf;
+	aconf.mode = AST_COUNTER_MODE;
+	aconf.osc_type = AST_OSC_PB;
+	//aconf.osc_type = AST_OSC_RC;
+	aconf.psel = 19;
+	aconf.counter = 0;
+	
+	ast_enable(AST);
+	ast_set_config(AST, &aconf);
+	
+	ast_write_periodic0_value(AST, 18);
+	
+	int8_t status = ast_set_callback(AST, AST_INTERRUPT_PER, Periodic_Int, AST_PER_IRQn, 5);
+	
+	if(status == 1) {
+		ioport_set_pin_level(RLED, 0);
+	} else if(status == 2) {
+		ioport_set_pin_level(GLED, 0);
+	} else {
+		ioport_set_pin_level(BLED, 0);
+	}
+	
+	//ast_write_periodic1_value(AST, 31);
+	//ast_clear_interrupt_flag(AST, AST_INTERRUPT_PER);
+	//ast_enable_interrupt(AST, AST_INTERRUPT_PER);
+	
+	//ast_start(AST);
+}
+
 void user_callback_sof_action() {
 	uint8_t t = 0;
 	t = 3;
@@ -159,8 +200,10 @@ int main (void)
 	init_dial();
 	
 	/* Init USB */
-	
+	_vfo_report.rtype = HID_REPORTID_VFODIAL;
 	udc_start();
+	
+	init_ast_timer();
 	
 	uint32_t cnt = 0;
 
@@ -168,10 +211,11 @@ int main (void)
 	while(1) {
 		//sleepmgr_enter_sleep();
 		cnt++;
-		if(cnt == 48000000) {
+		if(cnt == 500) {
+
 			cnt = 0;
-			_vfo_report.buttons++;
-			udi_hid_generic_send_report_in((uint8_t *)&_vfo_report);
+			//_vfo_report.buttons++;
+			//udi_hid_generic_send_report_in((uint8_t *)&_vfo_report);
 		}
 	}
 }
