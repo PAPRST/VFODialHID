@@ -16,7 +16,7 @@ extern "C" {
 
 	#define MAX_STR 255
 
-	typedef struct {
+	typedef struct __attribute__((packed)) {
 		uint16_t buttons;
 		int16_t smooth;
 		int8_t coarse;
