@@ -64,6 +64,15 @@ do {\
 #define LEFT_LED	PIN_PA02
 #define RIGHT_LED	PIN_PA29
 
+#define ROW_0		PIN_PA08 // Should placed row in the good order for the matrix scanning
+#define ROW_1		PIN_PA09
+#define ROW_2		PIN_PA12
+
+#define COL_0		PIN_PA11
+#define COL_1		PIN_PA10
+#define COL_2		PIN_PA27
+#define COL_3		PIN_PA28
+
 #define SM_COD_N	PIN_PA05
 #define SM_COD_P	PIN_PA04
 
