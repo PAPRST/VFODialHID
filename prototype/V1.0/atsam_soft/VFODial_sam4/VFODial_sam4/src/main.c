@@ -35,14 +35,59 @@ void init_screen(void) {
 
 }
 
+uint16_t readKey() {
+	uint32_t scanlist_high[] = {0x100, 0x200, 0x1000};
+	uint32_t scanlist_low[] = {0x1200, 0x1100, 0x300};
+	//uint32_t scanlist_high[] = {0x200, 0x1000, 0x100};
+	//uint32_t scanlist_low[] = {0x1100, 0x300, 0x1200};
+	uint32_t cols = 0x18000C00;
+	volatile uint32_t keys[3] = {};
+	/*for(uint8_t j = 0; j < 1; j++) {
+		ioport_set_port_level(IOPORT_GPIOA, scanlist_low[j], IOPORT_PIN_LEVEL_LOW);
+		ioport_set_port_level(IOPORT_GPIOA, scanlist_high[j], IOPORT_PIN_LEVEL_HIGH);
+		keys[j] = ioport_get_port_level(IOPORT_GPIOA, cols);
+	}*/
+	// Crappy we delay read because of GPIO cycle
+	ioport_set_port_level(IOPORT_GPIOA, scanlist_low[2], IOPORT_PIN_LEVEL_LOW);
+	ioport_set_port_level(IOPORT_GPIOA, scanlist_high[2], IOPORT_PIN_LEVEL_HIGH);
+	keys[0] = ioport_get_port_level(IOPORT_GPIOA, cols);
+	ioport_set_port_level(IOPORT_GPIOA, scanlist_low[1], IOPORT_PIN_LEVEL_LOW);
+	ioport_set_port_level(IOPORT_GPIOA, scanlist_high[1], IOPORT_PIN_LEVEL_HIGH);
+	keys[2] = ioport_get_port_level(IOPORT_GPIOA, cols);
+	ioport_set_port_level(IOPORT_GPIOA, scanlist_low[0], IOPORT_PIN_LEVEL_LOW);
+	ioport_set_port_level(IOPORT_GPIOA, scanlist_high[0], IOPORT_PIN_LEVEL_HIGH);
+	keys[1] = ioport_get_port_level(IOPORT_GPIOA, cols);
+	volatile uint16_t detected_keys = 0;
+	/*for(uint8_t i = 0; i < 1; i++) {
+		const uint32_t col0_mask = 0x800;
+		const uint32_t col1_mask = 0x400;
+		const uint32_t col2_mask = 0x8000000;
+		const uint32_t col3_mask = 0x10000000;
+		uint32_t tmp = ((col0_mask & keys[i]) >> 11) | ((col1_mask & keys[i]) >> 9) | ((col2_mask & keys[i]) >> 25) | ((col3_mask & keys[i]) >> 25);
+		detected_keys |= (uint16_t)tmp << (i * 4);
+	}*/
+	const uint32_t col0_mask = 0x800;
+	const uint32_t col1_mask = 0x400;
+	const uint32_t col2_mask = 0x8000000;
+	const uint32_t col3_mask = 0x10000000;
+	
+	volatile uint32_t tmp = ((col0_mask & keys[0]) >> 11) | ((col1_mask & keys[0]) >> 9) | ((col2_mask & keys[0]) >> 25) | ((col3_mask & keys[0]) >> 25);
+	detected_keys |= (uint16_t)tmp;
+	
+	tmp = ((col0_mask & keys[1]) >> 11) | ((col1_mask & keys[1]) >> 9) | ((col2_mask & keys[1]) >> 25) | ((col3_mask & keys[1]) >> 25);
+	detected_keys |= (uint16_t)tmp << 4;
+	
+	tmp = ((col0_mask & keys[2]) >> 11) | ((col1_mask & keys[2]) >> 9) | ((col2_mask & keys[2]) >> 25) | ((col3_mask & keys[2]) >> 25);
+	detected_keys |= (uint16_t)tmp << 8;
+	
+	return detected_keys;
+}
+
 uint8_t debug_state = 0;
 void Periodic_Int(void) {
 	ast_clear_interrupt_flag(AST, AST_INTERRUPT_PER);
 	
-	ioport_set_pin_level(GLED, debug_state & 1);
-	debug_state = ~debug_state;
-	
-	ioport_set_pin_level(BLED, smooth_cnt & 1);
+	_vfo_report.buttons = readKey();
 	
 	_vfo_report.smoothdial = smooth_cnt;
 	smooth_cnt = 0;
@@ -75,6 +120,28 @@ void init_dial(void) {
 	
 	ioport_set_pin_dir(RIGHT_LED, IOPORT_DIR_OUTPUT);
 	ioport_set_pin_level(RIGHT_LED, IOPORT_PIN_LEVEL_HIGH);
+	
+	/* Initialize button matrix */
+	ioport_set_pin_dir(ROW_0, IOPORT_DIR_OUTPUT);
+	ioport_set_pin_level(ROW_0, IOPORT_PIN_LEVEL_LOW);
+	
+	ioport_set_pin_dir(ROW_1, IOPORT_DIR_OUTPUT);
+	ioport_set_pin_level(ROW_1, IOPORT_PIN_LEVEL_LOW);
+	
+	ioport_set_pin_dir(ROW_2, IOPORT_DIR_OUTPUT);
+	ioport_set_pin_level(ROW_2, IOPORT_PIN_LEVEL_LOW);
+	
+	ioport_set_pin_dir(COL_0, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(COL_0, IOPORT_MODE_PULLDOWN | IOPORT_MODE_GLITCH_FILTER);
+	
+	ioport_set_pin_dir(COL_1, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(COL_1, IOPORT_MODE_PULLDOWN | IOPORT_MODE_GLITCH_FILTER);
+	
+	ioport_set_pin_dir(COL_2, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(COL_2, IOPORT_MODE_PULLDOWN | IOPORT_MODE_GLITCH_FILTER);
+	
+	ioport_set_pin_dir(COL_3, IOPORT_DIR_INPUT);
+	ioport_set_pin_mode(COL_3, IOPORT_MODE_PULLDOWN | IOPORT_MODE_GLITCH_FILTER);
 	
 	/* Initialize Coder Input */
 	ioport_set_pin_dir(SM_COD_N, IOPORT_DIR_INPUT);
@@ -135,19 +202,9 @@ void init_ast_timer(void) {
 	
 	int8_t status = ast_set_callback(AST, AST_INTERRUPT_PER, Periodic_Int, AST_PER_IRQn, 5);
 	
-	if(status == 1) {
-		ioport_set_pin_level(RLED, 0);
-	} else if(status == 2) {
+	if(status == 0) {
 		ioport_set_pin_level(GLED, 0);
-	} else {
-		ioport_set_pin_level(BLED, 0);
 	}
-	
-	//ast_write_periodic1_value(AST, 31);
-	//ast_clear_interrupt_flag(AST, AST_INTERRUPT_PER);
-	//ast_enable_interrupt(AST, AST_INTERRUPT_PER);
-	
-	//ast_start(AST);
 }
 
 void user_callback_sof_action() {
@@ -166,9 +223,6 @@ void set_feature(uint8_t * report) {
 }
 
 void coder_detect() {
-	// To be optimised
-	//int A = digitalRead(code_A);
-	//int B = digitalRead(code_B);
 	
 	uint16_t A = 0;
 	uint16_t B = 0;
@@ -184,9 +238,9 @@ void coder_detect() {
 	prev_B = B;
 
 	if(valid == 0b0111 | valid == 0b1000 | valid == 0b0001 | valid == 0b1110) {
-		smooth_cnt++;
-		} else if (valid == 0b0100 | valid == 0b1011 | valid == 0b1101 | valid == 0b0010) {
 		smooth_cnt--;
+		} else if (valid == 0b0100 | valid == 0b1011 | valid == 0b1101 | valid == 0b0010) {
+		smooth_cnt++;
 	}
 }
 
