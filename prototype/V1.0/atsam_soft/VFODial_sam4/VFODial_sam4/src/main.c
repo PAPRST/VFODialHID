@@ -32,21 +32,17 @@
 #include "main.h"
 
 void init_screen(void) {
+	
 
 }
 
 uint16_t readKey() {
 	uint32_t scanlist_high[] = {0x100, 0x200, 0x1000};
 	uint32_t scanlist_low[] = {0x1200, 0x1100, 0x300};
-	//uint32_t scanlist_high[] = {0x200, 0x1000, 0x100};
-	//uint32_t scanlist_low[] = {0x1100, 0x300, 0x1200};
+	
 	uint32_t cols = 0x18000C00;
 	volatile uint32_t keys[3] = {};
-	/*for(uint8_t j = 0; j < 1; j++) {
-		ioport_set_port_level(IOPORT_GPIOA, scanlist_low[j], IOPORT_PIN_LEVEL_LOW);
-		ioport_set_port_level(IOPORT_GPIOA, scanlist_high[j], IOPORT_PIN_LEVEL_HIGH);
-		keys[j] = ioport_get_port_level(IOPORT_GPIOA, cols);
-	}*/
+
 	// Crappy we delay read because of GPIO cycle
 	ioport_set_port_level(IOPORT_GPIOA, scanlist_low[2], IOPORT_PIN_LEVEL_LOW);
 	ioport_set_port_level(IOPORT_GPIOA, scanlist_high[2], IOPORT_PIN_LEVEL_HIGH);
@@ -58,14 +54,7 @@ uint16_t readKey() {
 	ioport_set_port_level(IOPORT_GPIOA, scanlist_high[0], IOPORT_PIN_LEVEL_HIGH);
 	keys[1] = ioport_get_port_level(IOPORT_GPIOA, cols);
 	volatile uint16_t detected_keys = 0;
-	/*for(uint8_t i = 0; i < 1; i++) {
-		const uint32_t col0_mask = 0x800;
-		const uint32_t col1_mask = 0x400;
-		const uint32_t col2_mask = 0x8000000;
-		const uint32_t col3_mask = 0x10000000;
-		uint32_t tmp = ((col0_mask & keys[i]) >> 11) | ((col1_mask & keys[i]) >> 9) | ((col2_mask & keys[i]) >> 25) | ((col3_mask & keys[i]) >> 25);
-		detected_keys |= (uint16_t)tmp << (i * 4);
-	}*/
+
 	const uint32_t col0_mask = 0x800;
 	const uint32_t col1_mask = 0x400;
 	const uint32_t col2_mask = 0x8000000;
