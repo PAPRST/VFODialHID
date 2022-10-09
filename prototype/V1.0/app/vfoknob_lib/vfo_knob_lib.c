@@ -14,17 +14,17 @@ hid_device * open_by_id(uint16_t vid, uint16_t pid, const wchar_t * sernum) {
 		handle = hid_open(vid, pid, sernum);
 		printf("HID open %d \n", handle);
 		if(handle) {
-			// res = hid_get_manufacturer_string(handle, man_string, MAX_STR);
-			// if(res == 0) {
-			// 	res = hid_get_product_string(handle, prod_string, MAX_STR);
-			// 	if(res == 0) {
-			// 		res = hid_get_serial_number_string(handle, sernum_string, MAX_STR);
-			// 		if(res == 0)
-			// 			return handle;
-			// 		else
-			// 			return 0;
-			// 	}
-			// }
+			res = hid_get_manufacturer_string(handle, man_string, MAX_STR);
+			if(res == 0) {
+				res = hid_get_product_string(handle, prod_string, MAX_STR);
+				if(res == 0) {
+					res = hid_get_serial_number_string(handle, sernum_string, MAX_STR);
+					if(res == 0)
+						return handle;
+					else
+						return 0;
+				}
+			}
 			return handle;
 		}
 	}
